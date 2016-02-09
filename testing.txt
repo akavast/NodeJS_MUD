@@ -1,0 +1,483 @@
+All the commands are in the same order as they are on the strings page:
+https://secure.ecs.soton.ac.uk/noteswiki/w/COMP3207-1516-cw1-strings
+
+All the commands are present apart from the ones that were previously implemented.
+
+For each command, test it in various scenarios and check the output.
+
+Regarding other types of testing I also made use of JSHint to correct my code.
+
+-------------------------------------------------------------------------------------------------------
+whisper
+			USERS: Eric, Jack and Smith all in the same room.
+
+			COMMAND (as Eric): 
+				whisper Jack=hello 
+
+			OUTPUT:
+				Eric: You whisper "hello" to Jack.
+				Jack: Eric whispers "hello" to you.
+				Smith: Eric whispers something to Jack / You overheard Eric whisper "hello" to Jack
+			-------------------------------------------------------------------------------------------
+			Move Smith in another room.
+
+			COMMAND (as Eric): 
+				whisper Jack=hello 
+
+			OUTPUT:
+				Eric: You whisper "hello" to Jack.
+				Jack: Eric whispers "hello" to you.
+				Smith: <no output>
+			-------------------------------------------------------------------------------------------
+			COMMAND (as Eric): 
+				whisper Smith=hello 
+			OUTPUT:
+				Eric: Whisper to whom?
+			-------------------------------------------------------------------------------------------
+			COMMAND (as Eric): 
+				whisper Jack
+			OUTPUT:
+				Eric: Huh?
+			-------------------------------------------------------------------------------------------
+			COMMAND (as Eric):
+				whisper Daniel=hi
+			OUTPUT:
+				Eric: Daniel is not connected.
+			-------------------------------------------------------------------------------------------
+			COMMAND (as Eric):
+				whisper Joseph=hi
+			OUTPUT:
+				Eric: Daniel is not connected.
+-------------------------------------------------------------------------------------------------------
+inventory
+			USERS: Eric
+
+			Nothing in inventory currently.
+
+			COMMAND:
+				inventory
+			OUTPUT:
+				You aren't carrying anything.
+			-------------------------------------------------------------------------------------------
+			Something in inventory currently.
+
+			COMMAND:
+				inventory
+			OUTPUT:
+				You are carrying: cat.
+			-------------------------------------------------------------------------------------------	
+			Something in inventory currently.
+
+			COMMAND:
+				inventory 321
+			OUTPUT:
+				Huh?
+-------------------------------------------------------------------------------------------------------		
+@dig	
+			USERS: Eric
+
+			COMMAND:
+				@dig cloak_room
+			OUTPUT:
+				Room "cloak_room" created with ID: 59.
+			-------------------------------------------------------------------------------------------
+			COMMAND:
+				@dig Narnia - actually a closet
+			OUTPUT:
+				Room "Narnia - actually a closet" created with ID: 65.
+			-------------------------------------------------------------------------------------------
+			COMMAND
+				@dig
+			OUTPUT:
+				Huh?
+-------------------------------------------------------------------------------------------------------
+@success 	
+			USERS: Eric
+
+			COMMAND:
+				@success cat='The cat is in the bag...'
+			OUTPUT:
+				Success message set. (checked the field with examine)
+
+			TEST using take:
+				take cat
+				'The cat is in the bag...'
+				Taken.
+			-------------------------------------------------------------------------------------------
+			no '=' sign
+			COMMAND:
+				@success foobar 
+			OUTPUT:
+				Permission denied.
+			-------------------------------------------------------------------------------------------
+			name of non-existent object
+			COMMAND:
+				@success dog=I am dog
+			OUTPUT:
+				Permission denied.
+			-------------------------------------------------------------------------------------------
+			no argument
+			COMMAND:
+				@success cat
+			OUTPUT:
+				Success message set. (checked with examine, it is an empty string)	
+-------------------------------------------------------------------------------------------------------				
+@osuccess	
+			USERS: Eric, Jack (in the same room)
+
+			COMMAND:
+				@osuccess cat=successfuly picked up the cat
+			OUTPUT:
+				Success message set. (checked the field with examine)
+
+			TEST using take:
+			As Jack: 						As Eric:
+				take cat 			
+				Taken.						Jack successfuly picked up the cat
+-------------------------------------------------------------------------------------------------------
+@failure 	
+			USERS: Eric, Jack
+			
+			COMMAND:
+				@failure cat='The cat is not in the bag...'			
+			OUTPUT:
+				Failure message set. (checked the field with examine)
+
+			TEST using take (after locking the cat for Eric):
+			As Jack:
+				take cat
+				The cat is not in the bag...
+			-------------------------------------------------------------------------------------------
+			no '=' sign
+			COMMAND:
+				@failure foobar 
+			OUTPUT:
+				Permission denied.
+			-------------------------------------------------------------------------------------------
+			name of non-existent object
+			COMMAND:
+				@failure dog=I am dog
+			OUTPUT:
+				Permission denied.
+			-------------------------------------------------------------------------------------------
+			no argument
+			COMMAND:
+				@failure cat
+			OUTPUT:
+				Failure message set. (checked with examine, it is an empty string)	
+-------------------------------------------------------------------------------------------------------
+@ofailure   
+			USERS: Eric, Jack (in the same room)
+
+			COMMAND:
+				@osuccess cat=failed miserably to pick up the cat
+			OUTPUT:
+				Others failure message set.
+
+			Test using take:
+			As Jack:						As Eric:
+				take cat
+				You can't take that!		Jack failed miserably to pick up the cat
+-------------------------------------------------------------------------------------------------------
+@name     	
+			USERS: Eric
+
+			COMMAND:
+				@name cat=dog
+			OUTPUT:
+				Name set. (tested using examine)
+			-------------------------------------------------------------------------------------------
+			no '=' sign
+			COMMAND:
+				@name catdog 
+			OUTPUT:
+				Huh?
+			-------------------------------------------------------------------------------------------
+			no name given
+			COMMAND:
+				@name cat=  | @name cat
+			OUTPUT:
+				Huh?
+-------------------------------------------------------------------------------------------------------
+@password	
+			USERS: Eric
+
+			COMMAND:
+				@password Zepler=Mountbatten
+			OUTPUT:
+				Password changed.	
+			-------------------------------------------------------------------------------------------
+			incorrect old password
+			COMMAND:
+				@password MMountbatten=Zeple
+			OUTPUT:
+				Sorry.
+			-------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------------
+@open 	
+			USERS: Eric
+
+			COMMAND:
+				@open myexit
+			OUTPUT:
+				Opened.
+			-------------------------------------------------------------------------------------------
+			no arg
+			COMMAND:
+				@name  
+			OUTPUT:
+				Huh?
+			-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------
+@link		
+			USERS: Eric
+
+			linking an exit 
+			COMMAND:
+				@link myexit=40
+			OUTPUT:
+				Linked.
+			-------------------------------------------------------------------------------------------
+			no arg afte '='
+			COMMAND:
+				@link myexit=
+			OUTPUT:
+				That's not a room!
+			-------------------------------------------------------------------------------------------
+			no arg 
+			COMMAND:
+				@link 
+			OUTPUT:
+				Huh?
+			-------------------------------------------------------------------------------------------
+			linking a thing or a room 
+			COMMAND:
+				@link cat=40  | @link here=40
+			OUTPUT:
+				Linked.
+			-------------------------------------------------------------------------------------------
+			special cases when second argument is 'home'
+			COMMAND:
+				@link me=home | here=home | cat=home
+			OUTPUT:
+				Home set.
+-------------------------------------------------------------------------------------------------------
+@unlink		
+			USERS: Eric
+		
+			COMMAND:
+				@unlink myexit
+			OUTPUT:
+				Unlinked.
+			-------------------------------------------------------------------------------------------
+			no arg 
+			COMMAND:
+				@unlink 
+			OUTPUT:
+				Unlink what?
+-------------------------------------------------------------------------------------------------------
+@create	
+			USERS: Eric
+		
+			COMMAND:
+				@create goldbar
+			OUTPUT:
+				Created.
+			-------------------------------------------------------------------------------------------
+			no arg 
+			COMMAND:
+				@create 
+			OUTPUT:
+				Huh?
+-------------------------------------------------------------------------------------------------------
+@unlock
+			USERS: Eric
+
+			COMMAND:
+				@unlock cat
+			OUTPUT:
+				Unlocked.
+			-------------------------------------------------------------------------------------------
+			no arg 
+			COMMAND:
+				@unlock 
+			OUTPUT:
+				Unlock what?
+-------------------------------------------------------------------------------------------------------
+@lock 		
+			USERS: Eric, Jack
+
+			COMMAND:
+				@lock cat=me
+			OUTPUT:
+				Locked.
+			-------------------------------------------------------------------------------------------
+			no arg 
+			COMMAND:
+				@lock 
+			OUTPUT:
+				Huh?
+			-------------------------------------------------------------------------------------------
+			lock an object that you don't own
+			As Jack:
+			COMMAND:
+				@lock cat
+			OUTPUT:
+				Permission denied.
+-------------------------------------------------------------------------------------------------------
+examine		
+			USERS: Eric, Jack
+
+			COMMAND:
+				examine cat
+			OUTPUT:
+				Description: null
+				Failure message: 
+				Success message: 'The cat is in the bag...'
+				Others failure message: failed miserably to pick up the cat
+				Others success message: successfuly picked up the cat
+				Type: THING
+				Flags: 1
+				Password: null
+				Target: 1
+				Location: 1
+				Owner: 2
+				Key: null
+			-------------------------------------------------------------------------------------------
+			examine an object that you don't own
+			As Jack:
+			COMMAND:
+				examine cat
+			OUTPUT:
+				Permission denied.
+			-------------------------------------------------------------------------------------------
+			no arg 
+			COMMAND:
+				examine
+			OUTPUT:
+				Examine what?
+-------------------------------------------------------------------------------------------------------		
+take
+			USERS: Eric, Jack
+
+			COMMAND:
+				take cat
+			OUTPUT:
+				Taken.
+			-------------------------------------------------------------------------------------------
+			take an object that is locked
+			As Jack: 
+			COMMAND:
+				take cat
+			OUTPUT:
+				Permission denied.
+			-------------------------------------------------------------------------------------------
+			no arg 
+			COMMAND:
+				take
+			OUTPUT:
+				Take what?
+			-------------------------------------------------------------------------------------------
+			take something that isn't yours
+			As Jack:
+			COMMAND:
+				take cat
+			OUTPUT:
+				You can't take that!
+			-------------------------------------------------------------------------------------------
+			take something that is locked on key that you own but has anti_lock flag
+			COMMAND:
+				take cat
+			OUTPUT:
+				You can't take that!
+-------------------------------------------------------------------------------------------------------
+drop 		
+			USERS: Eric
+
+			COMMAND:
+				drop cat
+			OUTPUT:
+				Dropped. (in current room)
+			-------------------------------------------------------------------------------------------
+			drop it in a room that has a dropto
+			COMMAND:
+				drop cat
+			OUTPUT:
+				Dropped. (goes to room dropTo)
+			-------------------------------------------------------------------------------------------
+			drop it in a room that is a temple
+			COMMAND:
+				drop cat
+			OUTPUT:
+				Dropped. (goes to cat home)
+-------------------------------------------------------------------------------------------------------
+@set 		
+			USERS: Eric
+
+			A command for each type of flag:
+			-------------------------------------------------------------------------------------------
+			COMMAND:
+				@set cat=anti_lock
+			OUTPUT:
+				Flag set.
+			-------------------------------------------------------------------------------------------
+			COMMAND:
+				@set myexit=link_ok
+			OUTPUT:
+				Flag set.		
+			-------------------------------------------------------------------------------------------
+			COMMAND:
+				@set here=temple
+			OUTPUT:
+				Flag set.
+-------------------------------------------------------------------------------------------------------
+page
+			USERS: Eric, Jack
+
+			COMMAND:
+				@page Jack
+			OUTPUT:
+				Eric: 
+					Your message has been sent.
+				Jack:
+					You sense that Eric is looking for you in Zepler Foyer.
+			-------------------------------------------------------------------------------------------
+			no arg 
+			COMMAND:
+				page
+			OUTPUT:
+				Huh?
+			-------------------------------------------------------------------------------------------
+			page non-existent player 
+			COMMAND:
+				page Danny
+			OUTPUT:
+				I don't recognize that name.	
+-------------------------------------------------------------------------------------------------------
+@find		
+			USERS: Eric
+
+			COMMAND:
+				@find erica
+			OUTPUT:		
+				Erica The Rhino (#47)
+				ride Erica The Rhino (#48)
+-------------------------------------------------------------------------------------------------------
+@path
+			USERS: Eric
+
+			COMMAND:
+				@path STACS Office
+			OUTPUT:
+				Zepler Foyer
+				 -> doorway;stairs
+				Zepler North Stairwell
+				 -> level 3;Level 3
+				Zepler Level 3 North Corridor
+				 -> UG lab door
+				UG Lab
+				 -> STACS
+				STACS Office
+-------------------------------------------------------------------------------------------------------
+
